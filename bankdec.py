@@ -1,3 +1,10 @@
+def date_time():
+    import datetime
+    x = datetime.datetime.now()
+    return x
+    
+
+transaction = {}
 admin ={}
 user_details ={}
 def get_account_id():
@@ -57,19 +64,39 @@ def id_check():
 
 
        
-# def deposite_money():
-#     global cheak 
-#     global user_01
-#     balance =user_01[2] 
-#     newbalance = balance + cheak 
-#     user_01.remove(balance)
-#     user_01.insert(2,newbalance)
-#     return user_01
-
-
+def deposite_money_and_add_transaction():
+    user_01 = id_check()
+    check = amount_check() 
+    change_01 = user_details.get(user_01)
+    print(change_01)   
+    balance = change_01[2]
+    balance += check
+    del change_01[2]
+    change_01.insert(2,balance)
+    user_details.pop(user_01)
+    user_details[user_01] = change_01
+    date_time_01 = date_time()
+    transaction[user_01] = [date_time_01,check,balance]
+    print(transaction)
     
 
-#==Login==
+# def add_transaction():
+#     user_01 = id_check()
+#     check = amount_check() 
+#     money = deposite_money()
+#     date_time_01 = date_time()
+#     transaction[user_01] = [date_time_01,check,money]
+#     print(transaction)
+
+def add_to_file():
+    for key,value in user_details.items():
+        file = open('user_details.txt','a')
+        file.write(f'{key},')
+        for i in value:
+            file.write(f'{i},')
+        file.write('\n')
+        file.close()
+#====================LOGIN===============================
 
 admin_id = "Admin"
 admin_password = 1234
@@ -96,24 +123,17 @@ if admin_id == login and admin_password == password:
                 print(balance)
                 print(userid)
                 print(userpassword)
-                user_details[userid] = name,userpassword,balance
+                details_01 = [name,userpassword,balance]
+                user_details[userid] = details_01
                 print(user_details)
 
             elif choice ==2:
-                user_01 = id_check()
-                check = amount_check()   
-                amount_01 = check
-                user_02 = user_01
-                def deposite_money(num,new):
-                    balance =add[2] 
-                    newbalance = balance +  num 
-                    del add[2]
-                    add.insert(2,newbalance)
-                    print(add)
-                    return add
-                money = deposite_money(amount_01,user_02)
+                deposite_money_and_add_transaction()
+                        
             elif choice ==3:
-                print(user_details)    
-
+                print(user_details) 
+            elif choice == 5:
+                add_to_file()
         except ValueError:
             print("Choise must be on Numbers.")
+            
