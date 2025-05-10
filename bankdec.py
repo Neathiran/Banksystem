@@ -6,37 +6,6 @@ user_balance ={}
 
 #========================LOGIN FUCTION=====================================
 
-def login():
-    global admin_id
-    global user_id
-    global user_admin_detail
-    while True:
-        id = input('Enter the ID : ')
-        password = input('Enter password : ')
-        read_admin()
-        read_user()
-        if id in admin_id:
-            admin_password =user_admin_detail.get(id)
-            if admin_password == password:
-                user_id.clear()
-                user_admin_detail.clear()
-                admin_id.clear()    
-                return 1
-            else:
-                print('Incorrct Password ')
-
-        else:            
-            if id in user_id:
-                user_password = user_admin_detail.get(id)
-                if user_password == password:
-                    user_id.clear()
-                    user_admin_detail.clear()
-                    admin_id.clear()
-                    return 2,id,password
-                else:
-                    print('Incorrct Password ')
-            else:
-                print('Incorrct ID')
 
 def read_admin():
     global user_admin_detail
@@ -59,6 +28,55 @@ def read_user():
         user =line.strip('\n').split(',')
         user_admin_detail[user[0]] = user[1]
         user_id.append(user[0])
+
+
+
+
+def login():
+    with open('admin_details.txt','a') as file:
+                file.write('Admin,1234,\n')
+
+    with open('users_details.txt','a') as file:
+        file.write('00000000,00000,00000000,000000,\n')
+    global  user_admin_detail
+    global  user_id 
+    global admin_id
+    global user_balance
+    while True:
+        login_id = input('Enter the ID : ')
+        password = input('Enter password : ')
+        user_balance['user'] = 1234
+        if login_id =='Admin' and password == '1234':
+            with open('user_balance.txt','a') as file:
+                file.write(f'00000,1234')
+                return 1,3,login_id,password
+
+        else:
+            read_admin()
+            if login_id in admin_id:
+                admin_password =user_admin_detail.get(login_id)
+                if admin_password == password:
+                    user_id.clear()
+                    user_admin_detail.clear()
+                    admin_id.clear()    
+                    return 1,login_id,password
+                else:
+                    print('Incorrct Password ')
+
+            else:
+                read_user()            
+                if login_id in user_id:
+                    user_password = user_admin_detail.get(login_id)
+                    if user_password == password:
+                        user_id.clear()
+                        user_admin_detail.clear()
+                        admin_id.clear()
+                        return 2,login_id,password
+                    else:
+                        print('Incorrct Password ')
+                else:
+                    print('Incorrct ID')
+
 
 #===================================================================
 
@@ -97,7 +115,7 @@ def get_password():
 
 #====================CHECK_NIC_NUMBER==============================
 
-def check_new_NIC_number():
+def check_new_NIC_number(): 
         while True:
                 try:
                     NIC_number = (input("Enter your NIC number : "))
@@ -134,6 +152,8 @@ def collect_user_details():
     user_balance[userid] = balance
     print(user_balance)
     transaction_withdraw_deposite(userid,balance)
+    write_user_balance()
+    write_user_balance_dec()
 
 #===============================================================================
 
@@ -245,7 +265,7 @@ def money_withdraw(amount,user_id):
     print(amount)
     user_balance.pop(user_id[0])
     user_balance[user_id[0]] = balance
-    print(f"Withdraw Successful")
+    print(f"Withdraw Successful.")
     return user_id[0]
 
 def transaction_withdraw_deposite(user_ID,add_money):
@@ -255,29 +275,41 @@ def transaction_withdraw_deposite(user_ID,add_money):
     new_balance = user_balance.get(user_ID)
     with open('user_transaction.txt', 'a') as file:
         if choice == 2:
-            file.write(f'deposite , {user_ID},{date},{add_money},{new_balance},\n')
+            file.write(f'Deposite , {user_ID},{date},{add_money},{new_balance},\n')
         elif choice ==3:
-            file.write(f'withdraw , {user_ID},{date},{add_money},{new_balance},\n')
+            file.write(f'Withdraw , {user_ID},{date},{add_money},{new_balance},\n')
         elif choice ==1:
-             file.write(f'deposite , {user_ID},{date},{add_money},\n')
+             file.write(f'Deposite , {user_ID},{date},{add_money},\n')
 #=============================================================================
 
 #=======================TRANSACTION_HISTORY===================================
 def transaction_history():
-    # user_id = check_id_password()
-    global user_id_01
-    print(user_id)
+    global New_login
+    global user_login_id
     with open('user_transaction.txt','r') as file:
             lines = file.readlines()
-            print('=====================================================================================================================')
-            print('      DATE & TIME     |         USER_ID       |   TYPE OF TRANSACTION  |       AMOUNT      |     NEW BLANCE    ')
-            print('=====================================================================================================================')
-            for line in lines:
-                user = line.strip(' \n ').split(',')
-                print(user)
-                print(user[1])
-                if user[1] == user_id_01[1]:
-                    print(f'{user[2]} |   {user[1]} | {user[0]} | {float(user[3])}  ')
+            if New_login[0] == 2:
+                user_login = user_login_id
+                print('===============================================================================================')
+                print('|      DATE & TIME     |         USER_ID       |   TYPE OF TRANSACTION  |       AMOUNT      |    ')
+                print('===============================================================================================')
+                for line in lines:
+                    user = [field.strip() for field in line.strip().split(',')]
+                    if user[1] == user_login[0]:
+                        print(f'| {user[2]}  |      {user[1]}       |         {user[0]}       |       {float(user[3])}    ') 
+
+            elif New_login[0] ==1:
+                user_login = check_id_password()
+                print('===============================================================================================')
+                print('|      DATE & TIME     |         USER_ID       |   TYPE OF TRANSACTION  |       AMOUNT      |    ')
+                print('===============================================================================================')
+                for line in lines:
+                    user = [field.strip() for field in line.strip().split(',')]
+                    if user[1] == user_login[0]:
+                        print(f'| {user[2]}  |      {user[1]}       |         {user[0]}       |       {float(user[3])}    ')
+            else:
+                print("Data not Found")
+
 
 #==================================================================================
 
@@ -295,13 +327,13 @@ def check_balance():
     elif New_login[0] == 2:
         balance_02 = user_balance.get(New_login[1])
         print(f"Account Balance : {balance_02}")
-
+#=====================================================================
 
 #===============================ADMIN_MENU========================================
 New_login = login()
-if New_login ==1:
+if New_login[0] ==1:
     print('Admin Login')
-    write_user_balance_dec()
+    #write_user_balance_dec()
     while True:
         print("1. Create Account.")
         print("2. Deposite Money.")
@@ -317,26 +349,41 @@ if New_login ==1:
                 collect_user_details()
     
             elif choice ==2:
-                user_id_01 = check_id_password()
-                amount_01 = deposit_amount_check()
-                deposite =  deposit_money(amount_01,user_id_01)
-                transaction_withdraw_deposite(deposite,amount_01)
+                if len(user_balance) >1:
+                    write_user_balance_dec()
+                    user_login_id = check_id_password()
+                    amount_01 = deposit_amount_check()
+                    deposite =  deposit_money(amount_01,user_login_id)
+                    transaction_withdraw_deposite(deposite,amount_01)
+                else:
+                    print("Data Not Found")
 
             elif choice ==3:
-                user_id_02 = check_id_password()
-                amount_02 = withdraw_amount_check(user_id_02)
-                withdraw = money_withdraw(amount_02,user_id_02)
-                transaction_withdraw_deposite(withdraw,amount_02)
-        
+                if len(user_balance) >1:
+                    write_user_balance_dec()
+                    user_id_02 = check_id_password()
+                    amount_02 = withdraw_amount_check(user_id_02)
+                    withdraw = money_withdraw(amount_02,user_id_02)
+                    transaction_withdraw_deposite(withdraw,amount_02)
+                else:
+                    print("Data Not Found")
+                    
             elif choice == 4:
-                transaction_history()
+                if len(user_balance) >1:
+                    transaction_history()
 
+                else:
+                    print("Data Not Found")
 
             elif choice ==5:
                 add_admin_id()
 
             elif choice == 6:
-                check_balance()
+                if len(user_balance) >1:
+                    check_balance()
+
+                else:
+                    print("Data Not Found")
 
             elif choice == 7:
                 write_user_balance()
@@ -353,8 +400,8 @@ if New_login ==1:
 elif New_login[0] ==2: 
     print('User login')
     write_user_balance_dec()
-    user_id_01 = [New_login[1]]
-    user_id_01.append("hello")
+    user_login_id = [New_login[1]]
+    user_login_id.append("hello")
     while True:
         print("1. Check balance")
         print("2. Deposite Money.")
@@ -370,12 +417,12 @@ elif New_login[0] ==2:
     
             elif choice ==2:
                 amount_01 = deposit_amount_check()
-                deposite =  deposit_money(amount_01, user_id_01)
+                deposite =  deposit_money(amount_01, user_login_id)
                 transaction_withdraw_deposite(deposite,amount_01)
 
             elif choice ==3:
-                amount_02 = withdraw_amount_check(user_id_01)
-                withdraw = money_withdraw(amount_02,user_id_01)
+                amount_02 = withdraw_amount_check(user_login_id)
+                withdraw = money_withdraw(amount_02,user_login_id)
                 transaction_withdraw_deposite(withdraw,amount_02)
                 
             elif choice == 4:
